@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+    <div h="haha">mm</div>
+    <script>
+      var obj = {}
+      var target = [1, 2]
+      // debugger
+      Object.defineProperty(obj, 'a', {
+        set: function (newVal) {
+            console.log('set')
+        },
+        get: function () {
+            // 不能这么写，这样会递归，无限循环
+            // return obj['a']
+            // console.log('get')
+            return target
+        }
+      })
+
+      obj['a'] = 1 // set
+      console.log(obj['a']) // get
+    </script>
+    </body>
+</html>
