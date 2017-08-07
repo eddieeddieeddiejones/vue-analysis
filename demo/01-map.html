@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+    <script>
+    // map
+    var arr = [1, 2]
+    // IE12+浏览器可以直接支持箭头函数
+    var newArr = arr.map(item => {
+     return {
+      a: item
+     } 
+    })
+    // [Object, Object]
+    console.log(newArr)
+    </script>
+    </body>
+</html>

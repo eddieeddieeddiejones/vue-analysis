@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <div class="father">
+          <p class="button">button</p>
+          <p>bluablua</p>
+        </div>
+    </head>
+    <body>
+    <script>
+      // TODO
+      var funA = function () {
+        console.log(1)
+      }
+      var selectors = [".button"]
+      funB =  function (handler, selectors) {
+        return function (e) {
+            var match = selectors.every(function (selector) {
+                // function webkitMatchesSelector() { [native code] }
+                // console.log(e.target.webkitMatchesSelector)
+                // 点击.button为true,点击其他为false
+                // console.log(e.target.webkitMatchesSelector(selector))
+                return e.target.webkitMatchesSelector(selector)
+            })
+            // div.father
+            // console.log(this)
+            if (match) handler.apply(this, arguments)
+        }
+      }
+      var domFather = document.querySelector('.father')
+
+      var funC = funB(funA, selectors)
+      // console.log(funC)  // function (e) {}
+
+      funC.bind(domFather)
+      domFather.addEventListener('click', funC)
+    </script>
+    </body>
+</html>

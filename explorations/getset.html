@@ -1,65 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>ideal</title>
-</head>
-<body>
-	<div id="test">
-		<p>{{msg}}</p>
-		<p>{{msg}}</p>
-		<p>{{msg}}</p>
-		<p>{{what}}</p>
-		<p>{{hey}}</p>
-	</div>
-	<script>
-	var bindingMark = 'data-element-binding'
-	function Element (id, initDate) {
-		var self = this,
-			el = self.el = document.getElementById("test")
-			bindings = {} // the internal copy
-			data = self.data = {} // the external interface
-			content = el.innerHTML.replace(/\{\{(.*)\}\}/g, markToken)
-		// console.log(content)
-		el.innerHTML = content
+<html>
+	<head>
+		<title>ideal</title>
+		<meta charset="utf-8">
+	</head>
+	<body>
+		<div id="test">
+			<p>{{msg}}</p>
+			<p>{{msg}}</p>
+			<p>{{msg}}</p>
+			<p>{{what}}</p>
+			<p>{{hey}}</p>
+		</div>
+		<script>
+			var bindingMark = 'data-element-binding'
+			function Element (id, initData) {
 
-		for (var variable in bindings) {
-			bind(variable)
-		}
-		if (initDate) {
-			for (var variable in initDate) {
-				data[variable] = initDate[variable]
-			}
-		}
+				var self	 = this,
+					el 		 = self.el = document.getElementById(id)
+					bindings = {} // the internal copy
+					data 	 = self.data = {} // the external interface
+					content  = el.innerHTML.replace(/\{\{(.*)\}\}/g, markToken)
 
-		function markToken (match, variable) {
-			// {{msg}} msg ...
-			// console.log(match, variable)
-			bindings[variable] = {}
-			return '<span ' + bindingMark + '="' + variable + '"></span>'
-		}
+				el.innerHTML = content
 
-		function bind (variable) {
-			bindings[variable].els = document.querySelectorAll('[data-element-binding="' + variable + '"]')
-			;[].forEach.call(bindings[variable].els, function (el) {
-				el.removeAttribute(bindingMark)
-			})
-
-			Object.defineProperty(data, variable, {
-				set: function (newVal) {
-					[].forEach.call(bindings[variable].els, function (e) {
-						bindings[variable].value = e.textContent = newVal
-					})
-				},
-				get: function () {
-					return bindings[variable].value
+				for (var variable in bindings) {
+					bind(variable)
 				}
+
+				if (initData) {
+					for (var variable in initData) {
+						data[variable] = initData[variable]
+					}
+				}
+
+				function markToken (match, variable) {
+					bindings[variable] = {}
+					return '<span ' + bindingMark + '="' + variable +'"></span>'
+				}
+
+				function bind (variable) {
+					bindings[variable].els = el.querySelectorAll('[' + bindingMark + '="' + variable + '"]')
+				    ;[].forEach.call(bindings[variable].els, function (e) {
+				        e.removeAttribute(bindingMark)
+				    })
+					Object.defineProperty(data, variable, {
+						set: function (newVal) {
+						    [].forEach.call(bindings[variable].els, function (e) {
+						        bindings[variable].value = e.textContent = newVal
+						    })
+						},
+						get: function () {
+						    return bindings[variable].value
+						}
+					})
+				}
+			}
+			
+			var app = new Element('test', {
+				msg: 'hello'
 			})
-		}
-	}
-	var app = new Element('test', {
-		msg: 'hello'
-	})
-	</script>
-</body>
+
+		</script>
+	</body>
 </html>

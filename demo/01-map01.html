@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+    <script>
+    // call
+    var namedNodeMap = {
+      0: {
+        'name': 'sd-text',
+        'value': 'msg | capitalize'
+      }, 
+      length: 1
+    }
+    var returnValue = [].map.call(namedNodeMap, function (attr) {
+      return {
+        name: attr.name,
+        value: attr.value
+      }
+    })
+    // [Object]
+    console.log(returnValue)
+    </script>
+    </body>
+</html>

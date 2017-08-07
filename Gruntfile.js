@@ -32,6 +32,9 @@ module.exports = function( grunt ) {
         },
 
         watch: {
+            options: {
+                livereload: 9000
+            },
             component: {
                 files: ['src/**/*.js', 'component.json'],
                 tasks: ['jshint', 'component_build', 'mocha']
