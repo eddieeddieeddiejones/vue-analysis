@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  // 这个正则表达式看的还是不太明白？？？？？？？？？？？？？？
+  var SPLIT_RE        = /(?:['"](?:\\.|[^'"])*['"]|\((?:\\.|[^\)])*\)|\\.|[^,])+/g
+  var Directive = {}
+  Directive.split = function (exp) {
+    // [""fsefsf,fsef,fsef""]
+    console.log(exp.match(SPLIT_RE))
+      return exp.indexOf(',') > -1
+          ? exp.match(SPLIT_RE) || ['']
+          : [exp]
+  }
+
+  var test4 = '\"fsefsf,fsef,fsef\"'
+  var result = Directive.split(test4)
+  console.log(result) // [""fsefsf,fsef,fsef""]
+</script>
+</body>
+</html>

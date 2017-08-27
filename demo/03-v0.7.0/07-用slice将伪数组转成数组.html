@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+<div class="a">
+  <p>hah</p>
+  heihei
+  <p>sadf</p>
+  <div>asdf</div>
+</div>
+<script>
+  // 用slice将伪数组转成数组
+  var node = document.querySelector('.a')
+  // console.log(node)
+  var children = node.childNodes
+  console.log(children) // [text, p, text, p, text, div, text]
+  // 把伪数组转成数组
+  // 这样做有什么好处是可以使用数组的push,pop等方法
+  var arr = [].slice.call(children)
+  console.log(arr)
+  // for (var i in arr) {
+  //   console.log(i)
+  // }
+
+  // for (var i in arr) {
+  //   console.log(i)
+  // }
+
+</script>
+</body>
+</html>

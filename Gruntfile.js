@@ -2,30 +2,29 @@ module.exports = function( grunt ) {
 
     grunt.initConfig({
 
-        component_build: {
-            build: {
-                output: './dist/',
-                name: 'seed',
-                styles: false,
-                scripts: true,
-                verbose: true
-            }
-        },
+        version: grunt.file.readJSON('package.json').version,
 
         jshint: {
+            options: {
+                reporter: require('jshint-stylish'),
+                jshintrc: true
+            },
             build: {
-                src: ['src/**/*.js'],
-                options: {
-                    jshintrc: "./.jshintrc"
-                }
+                src: ['Gruntfile.js', 'tasks/*.js']
+            },
+            src: {
+                src: 'src/**/*.js'
+            },
+            test: {
+                src: 'test/*/specs/*.js'
             }
         },
 
         mocha: {
-            build: {
-                src: ['test/test.html'],
+            test: {
+                src: ['test/unit/runner.html'],
                 options: {
-                    reporter: 'Spec',
+                    log: true,
                     run: true
                 }
             }
@@ -33,21 +32,39 @@ module.exports = function( grunt ) {
 
         watch: {
             options: {
-                livereload: 9000
+                nospawn: true
             },
-            component: {
-                files: ['src/**/*.js', 'component.json'],
-                tasks: ['jshint', 'component_build', 'mocha']
+            dev: {
+                files: ['src/**/*.js', './component.json'],
+                tasks: ['dev', 'instrument']
             }
         }
 
     })
 
-    grunt.loadNpmTasks( 'grunt-contrib-watch' )
-    grunt.loadNpmTasks( 'grunt-contrib-jshint' )
-    grunt.loadNpmTasks( 'grunt-component-build' )
-    grunt.loadNpmTasks( 'grunt-mocha' )
-    grunt.registerTask( 'test', ['mocha'] )
-    grunt.registerTask( 'default', ['jshint', 'component_build', 'mocha'] )
+    grunt.loadNpmTasks('grunt-mocha')
+    grunt.loadNpmTasks('grunt-contrib-watch')
+    grunt.loadNpmTasks('grunt-contrib-jshint')
+
+    // load custom tasks
+    grunt.file.recurse('tasks', function (path) {
+        require('./' + path)(grunt)
+    })
+
+    grunt.registerTask( 'unit', [
+        'instrument',
+        'mocha'
+    ])
+
+    grunt.registerTask( 'test', [
+        'unit',
+        'casper'
+    ])
+
+    grunt.registerTask( 'default', [
+        'jshint',
+        'build',
+        'test'
+    ])
     
 }

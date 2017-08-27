@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+<script>
+/**
+ *  args: an array of strings corresponding to
+ *  the single, double, triple ... forms of the word to
+ *  be pluralized. When the number to be pluralized
+ *  exceeds the length of the args, it will use the last
+ *  entry in the array.
+ *
+ *  e.g. ['single', 'double', 'triple', 'multiple']
+ */
+  function pluralize (value, args) {
+      return args.length > 1
+          ? (args[value - 1] || args[args.length - 1])
+          : (args[value - 1] || args[0] + 's')
+  }
+  console.log(pluralize(0, ['st', 'nd', 'rd'])) // 
+  console.log(pluralize(1, ['st', 'nd', 'rd'])) // 
+  console.log(pluralize(2, ['st', 'nd', 'rd'])) // 
+  console.log(pluralize(3, ['st', 'nd', 'rd'])) // 
+</script>
+</body>
+</html>

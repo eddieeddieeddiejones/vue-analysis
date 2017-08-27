@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <div class="father">
+          <p class="button">button</p>
+          <p>bluablua</p>
+        </div>
+    </head>
+    <body>
+    <script>
+      var directives = {}
+      var Vue = {}
+      Vue.directive  = function (id, fn) {
+        if (!fn) return directives[id]
+        directives[id] = fn
+        return this
+      }
+      Vue.directive('todo', function (value) {
+        console.log(value)
+      })
+      directives['todo']('logggg') // logggg
+    </script>
+    </body>
+</html>

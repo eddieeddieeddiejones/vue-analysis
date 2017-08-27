@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  var model = {
+    /**
+     *  12345 => $12,345.00
+     */
+    currency: function (value, args) {
+        if (!value && value !== 0) return ''
+        var sign = (args && args[0]) || '$',
+            s = Math.floor(value).toString(),
+            i = s.length % 3,
+            h = i > 0 ? (s.slice(0, i) + (s.length > 3 ? ',' : '')) : '',
+            f = '.' + value.toFixed(2).slice(-2)
+        return sign + h + s.slice(i).replace(/(\d{3})(?=\d)/g, '$1,') + f
+    }
+  }
+  var filter = model.currency
+  console.log(filter(1234.45)) // $1,234.45
+  console.log(filter(123443434.4343434)) // $123,443,434.43
+</script> 
+</body>
+</html>

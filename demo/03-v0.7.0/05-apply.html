@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  function fun (arg1, arg2) {
+    console.log(arg1, arg2) // 2 3
+    console.log(arguments) // [2, 3, callee: ƒ, Symbol(Symbol.iterator): ƒ]
+  }
+  a = {
+    arg1: 1
+  }
+  fun.apply(a, [2, 3]) 
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  var a = {
+    m: 2
+  }
+  Object.defineProperty(a, 'ha', {
+    value: 1,
+    enumerable: false, // 不可枚举
+    configurable: false // 不可修改
+  })
+  // console.log(a) // {m: 2, ha: 1}
+  // console.log(JSON.stringify(a)) // {"m":2}
+  // console.log(Object.keys(a)) // ["m"]
+  for (var i in a) {
+    console.log(i) // m
+  }
+</script>
+</body>
+</html>

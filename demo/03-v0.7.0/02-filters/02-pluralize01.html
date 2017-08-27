@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  function pluralize (value, args) {
+      return args.length > 1
+          ? (args[value - 1] || args[args.length - 1])
+          : (args[value - 1] || args[0] + 's')
+  }
+  console.log(pluralize(0, ['item'])) // items
+  console.log(pluralize(1, ['item'])) // item
+  console.log(pluralize(2, ['item'])) // items
+</script>
+</body>
+</html>

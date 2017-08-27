@@ -1,12 +1,38 @@
 {
-  "name": "seed",
-  "version": "0.0.1",
+  "name": "vue",
+  "version": "0.7.3",
+  "author": {
+    "name": "Evan You",
+    "email": "yyx990803@gmail.com",
+    "url": "http://evanyou.me"
+  },
+  "license": "MIT",
+  "description": "Simple, Fast & Composable MVVM for building interative interfaces",
+  "keywords": [
+    "mvvm",
+    "browser",
+    "framework"
+  ],
+  "main": "src/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yyx990803/vue.git"
+  },
+  "scripts": {
+    "test": "grunt"
+  },
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-watch": "~0.4.4",
-    "grunt-component-build": "~0.3.0",
-    "grunt-contrib-jshint": "~0.6.0",
-    "grunt-mocha": "~0.4.0",
-    "chai": "~1.7.2"
+    "grunt": "~0.4.2",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-mocha": "~0.4.6",
+    "jscoverage": "~0.3.8",
+    "jshint-stylish": "~0.1.4",
+    "semver": "~2.2.1",
+    "shell-task": "~0.1.1",
+    "map-stream": "0.0.4",
+    "uglify-js": "~2.4.8",
+    "vinyl-fs": "git://github.com/yyx990803/vinyl-fs",
+    "gulp-component": "~0.1.3"
   }
 }

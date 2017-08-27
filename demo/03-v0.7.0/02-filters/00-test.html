@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  var keyCodes = {
+      enter    : 13,
+      tab      : 9,
+      'delete' : 46,
+      up       : 38,
+      left     : 37,
+      right    : 39,
+      down     : 40,
+      esc      : 27
+  }
+
+  /**
+   *  A special filter that takes a handler function,
+   *  wraps it so it only gets triggered on specific keypresses.
+   */
+  function filter (handler, args) {
+      if (!handler) return
+      var code = keyCodes[args[0]]
+      if (!code) {
+          code = parseInt(args[0], 10)
+      }
+      return function (e) {
+          if (e.keyCode === code) {
+            // console.log(this) // window
+            // console.log(e) // {keyCode: 13}
+              handler.call(this, e)
+          }
+      }
+  }
+
+  var args = ['enter'],
+      triggered = false,
+      handler = filter(function () {
+          triggered = true
+      }, args)
+  handler({ keyCode: 0 })
+  console.log(triggered) // false
+  handler({ keyCode: 13 })
+  console.log(triggered) //true
+
+</script>
+</body>
+</html>
