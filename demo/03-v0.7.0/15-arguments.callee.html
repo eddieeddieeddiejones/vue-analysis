@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <div class="father">
+        </div>
+    </head>
+    <body>
+    <script>
+      function fun(x, y) {
+        /*
+        ƒ fun(x, y) {
+                console.log(arguments.callee)
+              }
+         */
+        console.log(arguments.callee)
+        console.log(arguments.callee.length) // 2 ,形参数目
+        // 要获取形参究竟是什么，可以通过正则匹配获取
+      }
+      fun('a', 'b')
+    </script>
+    </body>
+</html>

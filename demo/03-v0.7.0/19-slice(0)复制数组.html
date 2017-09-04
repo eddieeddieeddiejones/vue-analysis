@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <div class="father">
+        </div>
+    </head>
+    <body>
+    <script>
+      var prefix = 'v',
+          specialAttributes = [
+              'pre',
+              'text',
+              'repeat',
+              'partial',
+              'component',
+              'component-id',
+              'transition'
+          ],
+          config = {
+
+              async       : true,
+              debug       : false,
+              silent      : false,
+              enterClass  : 'v-enter',
+              leaveClass  : 'v-leave',
+              attrs       : {},
+
+              get prefix () {
+                  return prefix
+              },
+              set prefix (val) {
+                  prefix = val
+                  updatePrefix()
+              }
+              
+          }
+
+      function updatePrefix () {
+          specialAttributes.forEach(function (attr) {
+              config.attrs[attr] = prefix + '-' + attr
+          })
+      }
+
+      updatePrefix()
+      // console.log(config)
+      // console.log(config.prefix) // v
+      config.prefix = 'haha'
+      console.log(config)
+    </script>
+    </body>
+</html>

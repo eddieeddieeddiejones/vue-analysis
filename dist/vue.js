@@ -447,216 +447,222 @@ function updatePrefix () {
 updatePrefix()
 });
 require.register("vue/src/utils.js", function(exports, require, module){
-var config    = require('./config'),
-    attrs     = config.attrs,
-    toString  = Object.prototype.toString,
-    join      = Array.prototype.join,
-    console   = window.console,
-    ViewModel // late def
-
-// PhantomJS doesn't support rAF, yet it has the global
-// variable exposed. Use setTimeout so tests can work.
-var defer = navigator.userAgent.indexOf('PhantomJS') > -1
-    ? window.setTimeout
-    : (window.webkitRequestAnimationFrame ||
-        window.requestAnimationFrame ||
-        window.setTimeout)
+var config = require('./config'),
+    join = Array.prototype.toString,
+    attrs = config.attrs
 
 /**
- *  Create a prototype-less object
- *  which is a better hash/map
+ * create a prototype-less object
+ * which is a better hash/map
  */
 function makeHash () {
     return Object.create(null)
 }
 
 var utils = module.exports = {
-
     hash: makeHash,
-
-    // global storage for user-registered
-    // vms, partials and transitions
-    components  : makeHash(),
-    partials    : makeHash(),
-    transitions : makeHash(),
-
     /**
-     *  get an attribute and remove it.
+     * convert certain option values to the desired format.
      */
-    attr: function (el, type, noRemove) {
-        var attr = attrs[type],
-            val = el.getAttribute(attr)
-        if (!noRemove && val !== null) el.removeAttribute(attr)
-        return val
-    },
-
-    /**
-     *  Define an ienumerable property
-     *  This avoids it being included in JSON.stringify
-     *  or for...in loops.
-     */
-    defProtected: function (obj, key, val, enumerable, configurable) {
-        if (obj.hasOwnProperty(key)) return
-        Object.defineProperty(obj, key, {
-            value        : val,
-            enumerable   : !!enumerable,
-            configurable : !!configurable
-        })
-    },
-
-    /**
-     *  Accurate type check
-     *  internal use only, so no need to check for NaN
-     */
-    typeOf: function (obj) {
-        return toString.call(obj).slice(8, -1)
-    },
-
-    /**
-     *  Most simple bind
-     *  enough for the usecase and fast than native bind()
-     */
-    bind: function (fn, ctx) {
-        return function (arg) {
-            return fn.call(ctx, arg)
+     processOptions: function (options) {
+        var components = options.components,
+            partials = options.partials,
+            template = options.template,
+            key
+        if (components) {
+            // TODO
         }
-    },
+        if (partials) {
+            // todo
+        }
+        if (template) {
+            // todo
+        }
+     },
 
-    /**
-     *  Make sure only strings and numbers are output to html
-     *  output empty string is value is not string or number
-     */
-    toText: function (value) {
-        /* jshint eqeqeq: false */
-        return (typeof value === 'string' ||
-            typeof value === 'boolean' ||
-            (typeof value === 'number' && value == value)) // deal with NaN
-            ? value
-            : ''
-    },
-
-    /**
-     *  simple extend
-     */
-    extend: function (obj, ext, protective) {
+     /**
+      * simple extend
+      */
+     extend: function (obj, ext, protective) {
         for (var key in ext) {
             if (protective && obj[key]) continue
             obj[key] = ext[key]
-        }
-    },
-
-    /**
-     *  filter an array with duplicates into uniques
-     */
-    unique: function (arr) {
-        var hash = utils.hash(),
-            i = arr.length,
-            key, res = []
-        while (i--) {
-            key = arr[i]
-            if (hash[key]) continue
-            hash[key] = 1
-            res.push(key)
-        }
-        return res
-    },
-
-    /**
-     *  Convert a string template to a dom fragment
-     */
-    toFragment: function (template) {
-        if (typeof template !== 'string') {
-            return template
-        }
-        if (template.charAt(0) === '#') {
-            var templateNode = document.getElementById(template.slice(1))
-            if (!templateNode) return
-            template = templateNode.innerHTML
-        }
-        var node = document.createElement('div'),
-            frag = document.createDocumentFragment(),
-            child
-        node.innerHTML = template.trim()
-        /* jshint boss: true */
-        while (child = node.firstChild) {
-            frag.appendChild(child)
-        }
-        return frag
-    },
-
-    /**
-     *  Convert the object to a ViewModel constructor
-     *  if it is not already one
-     */
-    toConstructor: function (obj) {
-        ViewModel = ViewModel || require('./viewmodel')
-        return utils.typeOf(obj) === 'Object'
-            ? ViewModel.extend(obj)
-            : typeof obj === 'function'
-                ? obj
-                : null
-    },
-
-    /**
-     *  convert certain option values to the desired format.
-     */
-    processOptions: function (options) {
-        var components = options.components,
-            partials   = options.partials,
-            template   = options.template,
-            key
-        if (components) {
-            for (key in components) {
-                components[key] = utils.toConstructor(components[key])
-            }
-        }
-        if (partials) {
-            for (key in partials) {
-                partials[key] = utils.toFragment(partials[key])
-            }
-        }
-        if (template) {
-            options.template = utils.toFragment(template)
-        }
-    },
-
-    /**
-     *  log for debugging
-     */
-    log: function () {
+        } 
+     },
+     /**
+      * log for debugging
+      */
+     log: function () {
         if (config.debug && console) {
             console.log(join.call(arguments, ' '))
         }
-    },
-    
-    /**
-     *  warnings, traces by default
-     *  can be suppressed by `silent` option.
-     */
-    warn: function() {
-        if (!config.silent && console) {
-            console.warn(join.call(arguments, ' '))
-            if (config.debug) {
-                console.trace()
-            }
-        }
-    },
-
-    /**
-     *  used to defer batch updates
-     */
-    nextTick: function (cb) {
-        // ƒ webkitRequestAnimationFrame() { [native code] }
-        // console.log(window.webkitRequestAnimationFrame)
-        defer(cb, 0)
-    }
-
+     },
+     /**
+      * define an innumerable property
+      * this avoids it being included in JSON.stringify
+      * or for ... in loops
+      */
+     defProtected: function (obj, key, val, innumerable, configurable) {
+        if (obj.hasOwnProperty(key)) return
+        Object.defineProperty(obj, key, {
+            value: val,
+            innumerable: !!innumerable,
+            configurable: !!configurable
+        })
+     },
+     /**
+      * get an attribute and remove it
+      */
+     attr: function (el, type, noRemove) {
+        var attr = attrs[type],
+            val = el.getAttribute(attr)
+        if(!noRemove && val != null) el.removeAttribute(attr)
+        return val
+     },
+     /**
+      * Accurate type check
+      * internal use only, so no need to check for NaN
+      */
+     typeOf: function (obj) {
+        return toString.call(obj).slice(8, -1)
+     }
 }
 });
 require.register("vue/src/compiler.js", function(exports, require, module){
+var utils = require('./utils'),
+	extend = utils.extend,
+	log = utils.log,
+	Emitter = require('./emitter'),
+    makeHash = utils.hash,
+    def = utils.defProtected,
+    Observer = require('./observer')
 
+// {processOptions: ƒ, extend: ƒ}
+// console.log(utils)
 function Compiler (vm, options) {
-    // return new haha()
+    var compiler = this
+    // indicate that we are intiating this instance
+    // so we should not run any transitions
+    compiler.init = true
+
+    // process and extend options
+    options = compiler.options = options || makeHash()
+    utils.processOptions(options)
+
+    // copy data, methods & compiler options
+    var data = compiler.data = options.data || {}
+    extend(vm, data, true)
+    extend(vm, options.methods, true)
+    extend(compiler, options.compilerOptions)
+
+    // initialize element
+    var el = compiler.setupElement(options)
+    log('nnew VM instance:', el.tagName, '\n')
+
+    // set compiler properties
+    compiler.vm = vm
+    compiler.dirs = []
+    compiler.exps = []
+    compiler.computed = []
+    compiler.childCompilers = []
+    compiler.emitter = new Emitter()
+
+    // inherit parent bindings
+    var parent = compiler.parentCompiler
+    compiler.bindings = parent
+        ? Object.create(parent.bindings)
+        : makeHash()
+    compiler.rootCompiler = parent
+        ? getRoot(parent)
+        : compiler
+    def(vm, '$', makeHash())
+    def(vm, '$el', el)
+    def(vm, '$compiler', compiler)
+    def(vm, '$root', compiler.rootCompiler.vm)
+
+    // set parent VM
+    // and register child id on parent
+    var childId = utils.attr(el, 'component-id')
+    if (parent) {
+        // tod...
+    }
+
+    // setup observer
+    compiler.setupOberver()
+
+    // beforeCompiler hook
+    compiler.execHook('beforeCompile', 'created')
+
+    // the user might have set some props on the vm
+    // so copy it back to the data ...
+    extend(data, vm)
+
+    // observe the data
+    Observer.observe(data, '', compiler.observer)
+}
+var CompilerProto = Compiler.prototype
+
+/**
+ * Initialize the VM/Compiler's element.
+ * Fill it in with the template if necessary. 
+ */
+CompilerProto.setupElement = function (options) {
+	// create the node first
+	var el = this.el = typeof options.el === 'string'
+		? document.querySelector(options.el)
+		: options.el || document.createElement(options.tagName || 'div')
+
+	var template = options.template
+	if (template) {
+		// tod...
+	}
+
+	// apply element options
+	if (options.id) el.id = options.id
+	if (options.className) el.className = options.className
+	var attrs = options.attributes
+	if (attrs) {
+		// tod...
+	}
+
+	return el
+}
+/**
+ * Setup observer.
+ * The observer listens for get/set/mutate events on all VM
+ * values/objects and trigger corresponding binding updates.
+ */
+CompilerProto.setupOberver = function () {
+    var compiler = this,
+        bindings = compiler.bindings,
+        observer = compiler.observer = new Emitter()
+
+    // a hash to hold event proxies for each root level key
+    // so they can be referenced and removed later
+    observer.proxies = makeHash()
+
+    // add own listeners which trigger binding updates
+    observer
+        .on('get', function (key) {
+            // tod...
+        })
+        .on('set', function (key, value){
+            // tod...
+        })
+        .on('mutate', function (key, value, mutation){
+            // tod...
+        })
+}
+
+/**
+ * Excute a user hook
+ */
+CompilerProto.execHook = function (id, alt) {
+    var opts = this.options,
+        hook = opts[id] || opts[alt]
+    if (hook) {
+        hook.call(this.vm, opts)
+    }
 }
 
 module.exports = Compiler
@@ -765,319 +771,100 @@ BindingProto.unbind = function () {
 module.exports = Binding
 });
 require.register("vue/src/observer.js", function(exports, require, module){
-/* jshint proto:true */
+var ViewModel,
+	utils = require('./utils'),
+	Emitter = require('./emitter'),
 
-var Emitter  = require('./emitter'),
-    utils    = require('./utils'),
-    depsOb   = require('./deps-parser').observer,
+	// cache methods
+	typeOf = utils.typeOf,
+	def = utils.defProtected,
 
-    // cache methods
-    typeOf   = utils.typeOf,
-    def      = utils.defProtected,
-    slice    = Array.prototype.slice,
-
-    // types
-    OBJECT   = 'Object',
-    ARRAY    = 'Array',
-
-    // Array mutation methods to wrap
-    methods  = ['push','pop','shift','unshift','splice','sort','reverse'],
-
-    // fix for IE + __proto__ problem
-    // define methods as inenumerable if __proto__ is present,
-    // otherwise enumerable so we can loop through and manually
-    // attach to array instances
-    hasProto = ({}).__proto__,
-
-    // lazy load
-    ViewModel
-
-// The proxy prototype to replace the __proto__ of
-// an observed array
-var ArrayProxy = Object.create(Array.prototype)
-
-// Define mutation interceptors so we can emit the mutation info
-methods.forEach(function (method) {
-    def(ArrayProxy, method, function () {
-        var result = Array.prototype[method].apply(this, arguments)
-        this.__observer__.emit('mutate', this.__observer__.path, this, {
-            method: method,
-            args: slice.call(arguments),
-            result: result
-        })
-        return result
-    }, !hasProto)
-})
-
-// Augment it with several convenience methods
-var extensions = {
-    remove: function (index) {
-        if (typeof index === 'function') {
-            var i = this.length,
-                removed = []
-            while (i--) {
-                if (index(this[i])) {
-                    removed.push(this.splice(i, 1)[0])
-                }
-            }
-            return removed.reverse()
-        } else {
-            if (typeof index !== 'number') {
-                index = this.indexOf(index)
-            }
-            if (index > -1) {
-                return this.splice(index, 1)[0]
-            }
-        }
-    },
-    replace: function (index, data) {
-        if (typeof index === 'function') {
-            var i = this.length,
-                replaced = [],
-                replacer
-            while (i--) {
-                replacer = index(this[i])
-                if (replacer !== undefined) {
-                    replaced.push(this.splice(i, 1, replacer)[0])
-                }
-            }
-            return replaced.reverse()
-        } else {
-            if (typeof index !== 'number') {
-                index = this.indexOf(index)
-            }
-            if (index > -1) {
-                return this.splice(index, 1, data)[0]
-            }
-        }
-    }
-}
-
-for (var method in extensions) {
-    def(ArrayProxy, method, extensions[method], !hasProto)
-}
-
+	// types
+	OBJECT = 'Object',
+	ARRAY = 'Array'
 /**
- *  Watch an Object, recursive.
- */
-function watchObject (obj) {
-    for (var key in obj) {
-        convert(obj, key)
-    }
-}
-
-/**
- *  Watch an Array, overload mutation methods
- *  and add augmentations by intercepting the prototype chain
- */
-function watchArray (arr, path) {
-    var observer = arr.__observer__
-    if (!observer) {
-        observer = new Emitter()
-        def(arr, '__observer__', observer)
-    }
-    observer.path = path
-    if (hasProto) {
-        arr.__proto__ = ArrayProxy
-    } else {
-        for (var key in ArrayProxy) {
-            def(arr, key, ArrayProxy[key])
-        }
-    }
-}
-
-/**
- *  Define accessors for a property on an Object
- *  so it emits get/set events.
- *  Then watch the value itself.
- */
-function convert (obj, key) {
-    var keyPrefix = key.charAt(0)
-    if ((keyPrefix === '$' || keyPrefix === '_') && key !== '$index') {
-        return
-    }
-    // emit set on bind
-    // this means when an object is observed it will emit
-    // a first batch of set events.
-    var observer = obj.__observer__,
-        values   = observer.values,
-        val      = values[key] = obj[key]
-    observer.emit('set', key, val)
-    if (Array.isArray(val)) {
-        observer.emit('set', key + '.length', val.length)
-    }
-    Object.defineProperty(obj, key, {
-        get: function () {
-            var value = values[key]
-            // only emit get on tip values
-            if (depsOb.active && typeOf(value) !== OBJECT) {
-                observer.emit('get', key)
-            }
-            return value
-        },
-        set: function (newVal) {
-            var oldVal = values[key]
-            unobserve(oldVal, key, observer)
-            values[key] = newVal
-            copyPaths(newVal, oldVal)
-            observer.emit('set', key, newVal)
-            observe(newVal, key, observer)
-        }
-    })
-    observe(val, key, observer)
-}
-
-/**
- *  Check if a value is watchable
+ * check if a value is watchable
  */
 function isWatchable (obj) {
-    ViewModel = ViewModel || require('./viewmodel')
-    var type = typeOf(obj)
-    return (type === OBJECT || type === ARRAY) && !(obj instanceof ViewModel)
+	ViewModel = ViewModel || require('./viewmodel')
+	var type = typeOf(obj)
+	return (type === OBJECT || type === ARRAY) && !(obj instanceof ViewModel)
 }
 
 /**
- *  When a value that is already converted is
- *  observed again by another observer, we can skip
- *  the watch conversion and simply emit set event for
- *  all of its properties.
+ * Watch an Object, recursive
  */
-function emitSet (obj) {
-    var type = typeOf(obj),
-        emitter = obj && obj.__observer__
-    if (type === ARRAY) {
-        emitter.emit('set', 'length', obj.length)
-    } else if (type === OBJECT) {
-        var key, val
-        for (key in obj) {
-            val = obj[key]
-            emitter.emit('set', key, val)
-            emitSet(val)
-        }
-    }
+function watchObject (obj) {
+	for (var key in obj) {
+		convert(obj, key)
+	}
 }
 
 /**
- *  Make sure all the paths in an old object exists
- *  in a new object.
- *  So when an object changes, all missing keys will
- *  emit a set event with undefined value.
+ * Define an accessors for a property ob an object
+ * so it emits get/set events.
+ * Then watch the valueitself.
  */
-function copyPaths (newObj, oldObj) {
-    if (typeOf(oldObj) !== OBJECT || typeOf(newObj) !== OBJECT) {
-        return
-    }
-    var path, type, oldVal, newVal
-    for (path in oldObj) {
-        if (!(path in newObj)) {
-            oldVal = oldObj[path]
-            type = typeOf(oldVal)
-            if (type === OBJECT) {
-                newVal = newObj[path] = {}
-                copyPaths(newVal, oldVal)
-            } else if (type === ARRAY) {
-                newObj[path] = []
-            } else {
-                newObj[path] = undefined
-            }
-        }
-    }
+function convert (obj, key) {
+	var keyPrefix = key.charAt(0)
+	if ((keyPrefix === '$' || keyPrefix === '_') && key !== '$index') {
+		// tod...
+	}
+	// emit set ob bind
+	// this means when an object is observed it will emit
+	// a first batch of set events
+	var observer = obj.__observer__,
+		values = observer.values,
+		val = values[key] = obj[key]
+	observer.emit('set', key, val)
 }
 
 /**
- *  walk along a path and make sure it can be accessed
- *  and enumerated in that object
+ * Observe an object with a given path,
+ * and proxy get/set/mutate events to the provided observer
+ * 
  */
-function ensurePath (obj, key) {
-    var path = key.split('.'), sec
-    for (var i = 0, d = path.length - 1; i < d; i++) {
-        sec = path[i]
-        if (!obj[sec]) {
-            obj[sec] = {}
-            if (obj.__observer__) convert(obj, sec)
-        }
-        obj = obj[sec]
-    }
-    if (typeOf(obj) === OBJECT) {
-        sec = path[i]
-        if (!(sec in obj)) {
-            obj[sec] = undefined
-            if (obj.__observer__) convert(obj, sec)
-        }
-    }
-}
-
-/**
- *  Observe an object with a given path,
- *  and proxy get/set/mutate events to the provided observer.
- */
+// obj = {todos: Array(4), allDone: {…}, updateFilter: ƒ, addTodo: ƒ, removeTodo: ƒ, …}, rawPath = "", observer = Emitter {proxies: {…}, _callbacks: {…}}
 function observe (obj, rawPath, observer) {
     if (!isWatchable(obj)) return
     var path = rawPath ? rawPath + '.' : '',
-        ob, alreadyConverted = !!obj.__observer__
-    if (!alreadyConverted) {
-        def(obj, '__observer__', new Emitter())
-    }
-    ob = obj.__observer__
-    ob.values = ob.values || utils.hash()
-    observer.proxies = observer.proxies || {}
-    var proxies = observer.proxies[path] = {
-        get: function (key) {
-            observer.emit('get', path + key)
-        },
-        set: function (key, val) {
-            observer.emit('set', path + key, val)
-        },
-        mutate: function (key, val, mutation) {
-            // if the Array is a root value
-            // the key will be null
-            var fixedPath = key ? path + key : rawPath
-            observer.emit('mutate', fixedPath, val, mutation)
-            // also emit set for Array's length when it mutates
-            var m = mutation.method
-            if (m !== 'sort' && m !== 'reverse') {
-                observer.emit('set', fixedPath + '.length', val.length)
-            }
-        }
-    }
-    ob
-        .on('get', proxies.get)
-        .on('set', proxies.set)
-        .on('mutate', proxies.mutate)
-    if (alreadyConverted) {
-        emitSet(obj)
-    } else {
-        var type = typeOf(obj)
-        if (type === OBJECT) {
-            watchObject(obj)
-        } else if (type === ARRAY) {
-            watchArray(obj)
-        }
-    }
+		ob,
+		alreadyConverted = !! obj.__observer__
+	if (!alreadyConverted) {
+		def(obj, '__observer__', new Emitter())
+	}
+	ob = obj.__observer__
+	ob.values = ob.values || utils.hash()
+	observer.proxies = observer.proxies || {}
+	var proxies = observer.proxies[path] = {
+		get: function () {
+			// tod..
+		},
+		set: function () {
+			// tod..
+		},
+		mutate: function () {
+			// tod...
+		}
+	}
+	ob
+		.on('get', proxies.get)
+		.on('set', proxies.set)
+		.on('mutate', proxies.mutate)
+	if (alreadyConverted) {
+		// tod...
+	} else {
+		var type = typeOf(obj)
+		if (type === OBJECT) {
+			watchObject(obj)
+		} else if (type === ARRAY) {
+			watchARRay(obj)
+		}
+	}
 }
-
-/**
- *  Cancel observation, turn off the listeners.
- */
-function unobserve (obj, path, observer) {
-    if (!obj || !obj.__observer__) return
-    path = path ? path + '.' : ''
-    var proxies = observer.proxies[path]
-    if (!proxies) return
-    obj.__observer__
-        .off('get', proxies.get)
-        .off('set', proxies.set)
-        .off('mutate', proxies.mutate)
-    observer.proxies[path] = null
-}
-
 module.exports = {
-    observe     : observe,
-    unobserve   : unobserve,
-    ensurePath  : ensurePath,
-    convert     : convert,
-    copyPaths   : copyPaths,
-    watchArray  : watchArray,
+
+    observe: observe
 }
 });
 require.register("vue/src/directive.js", function(exports, require, module){

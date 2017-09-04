@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <div class="father">
+        </div>
+    </head>
+    <body>
+    <script>
+      function Emitter () {
+      }
+      Emitter.prototype.on = function (event, fn) {
+        this._callbacks = this._callbacks || {}
+        // console.log(this._callbacks)
+        // 这里不加;会报错，
+        // 如果下一行的第一个字元（token）是下面这五个字符之一，Javascript将不对上一行句尾添加分号："("、"["、"/"、"+"和"-"。
+        ;(this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn)
+        return this
+      }
+      var observer = new Emitter()
+      observer
+        .on('get', function (){
+          console.log('get')
+        })
+        .on('set', function () {
+          console.log('set')
+        })
+        .on('get', function (){
+          console.log('get2')
+        })
+      console.log(observer)
+    </script>
+    </body>
+</html>

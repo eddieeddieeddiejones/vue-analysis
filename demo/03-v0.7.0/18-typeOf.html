@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <div class="father">
+        </div>
+    </head>
+    <body>
+    <script>
+      console.log({}.toString()) // [object Object]
+      function typeOf (obj) {
+          return toString.call(obj).slice(8, -1)
+      }
+      console.log(typeOf([])) // Array
+      console.log(typeOf({})) // Object
+      console.log(typeOf(1)) // Number
+      console.log(typeOf(NaN)) // Number
+    </script>
+    </body>
+</html>

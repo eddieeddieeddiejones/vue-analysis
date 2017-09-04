@@ -7,19 +7,11 @@
     </head>
     <body>
     <script>
-      var i = 0;
-      var n = 0;
-
-      while (i < 5) {
-        i++;
-
-        if (i === 3) {
-          continue;
-        }
-
-        n = i;
-        console.log(n)
+      function fun() {
+        //  ["a", "b", callee: ƒ, Symbol(Symbol.iterator): ƒ]
+        console.log(arguments)
       }
+      fun('a', 'b')
     </script>
     </body>
 </html>

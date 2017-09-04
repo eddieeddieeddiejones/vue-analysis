@@ -1,6 +1,137 @@
+var utils = require('./utils'),
+	extend = utils.extend,
+	log = utils.log,
+	Emitter = require('./emitter'),
+    makeHash = utils.hash,
+    def = utils.defProtected,
+    Observer = require('./observer')
 
+// {processOptions: ƒ, extend: ƒ}
+// console.log(utils)
 function Compiler (vm, options) {
-    // return new haha()
+    var compiler = this
+    // indicate that we are intiating this instance
+    // so we should not run any transitions
+    compiler.init = true
+
+    // process and extend options
+    options = compiler.options = options || makeHash()
+    utils.processOptions(options)
+
+    // copy data, methods & compiler options
+    var data = compiler.data = options.data || {}
+    extend(vm, data, true)
+    extend(vm, options.methods, true)
+    extend(compiler, options.compilerOptions)
+
+    // initialize element
+    var el = compiler.setupElement(options)
+    log('nnew VM instance:', el.tagName, '\n')
+
+    // set compiler properties
+    compiler.vm = vm
+    compiler.dirs = []
+    compiler.exps = []
+    compiler.computed = []
+    compiler.childCompilers = []
+    compiler.emitter = new Emitter()
+
+    // inherit parent bindings
+    var parent = compiler.parentCompiler
+    compiler.bindings = parent
+        ? Object.create(parent.bindings)
+        : makeHash()
+    compiler.rootCompiler = parent
+        ? getRoot(parent)
+        : compiler
+    def(vm, '$', makeHash())
+    def(vm, '$el', el)
+    def(vm, '$compiler', compiler)
+    def(vm, '$root', compiler.rootCompiler.vm)
+
+    // set parent VM
+    // and register child id on parent
+    var childId = utils.attr(el, 'component-id')
+    if (parent) {
+        // tod...
+    }
+
+    // setup observer
+    compiler.setupOberver()
+
+    // beforeCompiler hook
+    compiler.execHook('beforeCompile', 'created')
+
+    // the user might have set some props on the vm
+    // so copy it back to the data ...
+    extend(data, vm)
+
+    // observe the data
+    Observer.observe(data, '', compiler.observer)
+}
+var CompilerProto = Compiler.prototype
+
+/**
+ * Initialize the VM/Compiler's element.
+ * Fill it in with the template if necessary. 
+ */
+CompilerProto.setupElement = function (options) {
+	// create the node first
+	var el = this.el = typeof options.el === 'string'
+		? document.querySelector(options.el)
+		: options.el || document.createElement(options.tagName || 'div')
+
+	var template = options.template
+	if (template) {
+		// tod...
+	}
+
+	// apply element options
+	if (options.id) el.id = options.id
+	if (options.className) el.className = options.className
+	var attrs = options.attributes
+	if (attrs) {
+		// tod...
+	}
+
+	return el
+}
+/**
+ * Setup observer.
+ * The observer listens for get/set/mutate events on all VM
+ * values/objects and trigger corresponding binding updates.
+ */
+CompilerProto.setupOberver = function () {
+    var compiler = this,
+        bindings = compiler.bindings,
+        observer = compiler.observer = new Emitter()
+
+    // a hash to hold event proxies for each root level key
+    // so they can be referenced and removed later
+    observer.proxies = makeHash()
+
+    // add own listeners which trigger binding updates
+    observer
+        .on('get', function (key) {
+            // tod...
+        })
+        .on('set', function (key, value){
+            // tod...
+        })
+        .on('mutate', function (key, value, mutation){
+            // tod...
+        })
+}
+
+/**
+ * Excute a user hook
+ */
+CompilerProto.execHook = function (id, alt) {
+    var opts = this.options,
+        hook = opts[id] || opts[alt]
+    if (hook) {
+        hook.call(this.vm, opts)
+    }
 }
 
 module.exports = Compiler

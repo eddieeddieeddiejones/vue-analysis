@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <div class="father">
+        </div>
+    </head>
+    <body>
+    <script>
+      var prefix = 'v',
+        specialAttr = [
+          'pre',
+          'text',
+          'repeat'
+        ],
+        config = {
+          async: true,
+          debug: false,
+          silent: false,
+          attrs: {},
+          get prefix () {
+            return prefix
+          },
+          set prefix (val) {
+            prefix = val
+            updatePrefix()
+          }
+        }
+      function updatePrefix () {
+        specialAttr.forEach(function (attr) {
+          config.attrs[attr] = prefix + '-' + attr
+        })
+      }
+
+      updatePrefix()
+      // {pre: "v-pre", text: "v-text", repeat: "v-repeat"}
+      console.log(config.attrs)
+      console.log(config.prefix) // v
+      config.prefix = 'haha'
+      // {pre: "haha-pre", text: "haha-text", repeat: "haha-repeat"}
+      console.log(config.attrs)
+    </script>
+    </body>
+</html>

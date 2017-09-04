@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <div class="father">
+        </div>
+    </head>
+    <body>
+    <script>
+      var a = {
+      }
+      Object.defineProperty(a, 'b', {
+          value: 2,
+          enumerable: false,
+          configurable: false
+      })
+      for (var b in a) {
+        console.log(b) // 没打印任何东西
+      }
+      a.b = 10
+      console.log(a.b) // a 
+    </script>
+    </body>
+</html>
