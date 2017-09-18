@@ -444,7 +444,9 @@ var utils = require('./utils'),
 	Emitter = require('./emitter'),
     makeHash = utils.hash,
     def = utils.defProtected,
-    Observer = require('./observer')
+    Observer = require('./observer'),
+    hasOwn = Object.prototype.hasOwnProperty,
+    Binding = require('./binding')
 
 // {processOptions: ƒ, extend: ƒ}
 // console.log(utils)
@@ -555,12 +557,18 @@ CompilerProto.setupOberver = function () {
         .on('get', function (key) {
             // tod...
         })
-        .on('set', function (key, value){
+        .on('set', function (key, val){
+            observer.emit('chagne:' + key, val)
+            check(key)
+        })
+        .on('mutate', function (key, val, mutation){
             // tod...
         })
-        .on('mutate', function (key, value, mutation){
-            // tod...
-        })
+    function check (key) {
+        if (!hasOwn.call(bindings, key)) {
+            compiler.createBinding(key)
+        }
+    }
 }
 
 /**
@@ -572,6 +580,50 @@ CompilerProto.execHook = function (id, alt) {
     if (hook) {
         hook.call(this.vm, opts)
     }
+}
+
+/**
+ * Create binding and attach getter/setter for a key to the viewmodel object
+ */
+CompilerProto.createBinding = function (key, isExp, isFn) {
+    var compiler = this,
+        bindings = compiler.bindings,
+        binding = new Binding(compiler, key, isExp, isFn)
+    if (isExp) {
+        // tod...
+    } else {
+        log(' created binding: ' + key)
+        bindings[key] = binding
+        // make sure the key exists in the object so it can be observerd
+        // by the Observer!
+        if (binding.root) {
+            // this is a root level binding.we need to define getter/setter for it.
+            compiler.define(key, binding)
+        }
+    }
+}
+
+/**
+ * Defines the getter/stter for a root-level binding on the VM
+ * and observe the initial value
+ */
+CompilerProto.define = function (key, binding) {
+    log('  defined root binding: ' + key)
+    var compiler = this,
+        data     = compiler.data,
+        vm       = compiler.vm,
+        ob       = data.__observer__
+    
+    if (!(key in data)) {
+        // todo...
+    }
+
+    // if the data object is already observed, but the key
+    // is not observed, we need to add it to the observed keys
+    if (ob && !(key in ob.values)) {
+        // tod...
+    }
+    // TODO
 }
 
 module.exports = Compiler
@@ -587,94 +639,21 @@ function ViewModel (options) {
 module.exports = ViewModel
 });
 require.register("vue/src/binding.js", function(exports, require, module){
-var batcher = require('./batcher'),
-    id = 0
+var id = 0
 
-/**
- *  Binding class.
- *
- *  each property on the viewmodel has one corresponding Binding object
- *  which has multiple directive instances on the DOM
- *  and multiple computed property dependents
- */
+
 function Binding (compiler, key, isExp, isFn) {
-    this.id = id++
-    this.value = undefined
-    this.isExp = !!isExp
-    this.isFn = isFn
-    this.root = !this.isExp && key.indexOf('.') === -1
-    this.compiler = compiler
-    this.key = key
-    this.instances = []
-    this.subs = []
-    this.deps = []
-    this.unbound = false
-}
-
-var BindingProto = Binding.prototype
-
-/**
- *  Process the value, then trigger updates on all dependents
- */
-BindingProto.update = function (value) {
-    this.value = value
-    batcher.queue(this, 'update')
-}
-
-BindingProto._update = function () {
-    var i = this.instances.length
-    while (i--) {
-        this.instances[i].update(this.value)
-    }
-    this.pub()
-}
-
-/**
- *  -- computed property only --    
- *  Force all instances to re-evaluate themselves
- */
-BindingProto.refresh = function () {
-    batcher.queue(this, 'refresh')
-}
-
-BindingProto._refresh = function () {
-    var i = this.instances.length
-    while (i--) {
-        this.instances[i].refresh()
-    }
-    this.pub()
-}
-
-/**
- *  Notify computed properties that depend on this binding
- *  to update themselves
- */
-BindingProto.pub = function () {
-    var i = this.subs.length
-    while (i--) {
-        this.subs[i].refresh()
-    }
-}
-
-/**
- *  Unbind the binding, remove itself from all of its dependencies
- */
-BindingProto.unbind = function () {
-    // Indicate this has been unbound.
-    // It's possible this binding will be in
-    // the batcher's flush queue when its owner
-    // compiler has already been destroyed.
-    this.unbound = true
-    var i = this.instances.length
-    while (i--) {
-        this.instances[i].unbind()
-    }
-    i = this.deps.length
-    var subs
-    while (i--) {
-        subs = this.deps[i].subs
-        subs.splice(subs.indexOf(this), 1)
-    }
+	this.id = id++
+	this.value = undefined
+	this.isExp = !!isExp
+	this.isFn = isFn
+	this.root = !this.isExp && key.indexOf('.') === -1
+	this.compiler = compiler
+	this.key = key
+	this.instances = []
+	this.subs = []
+	this.deps = []
+	this.unbound = false
 }
 
 module.exports = Binding
@@ -1488,46 +1467,13 @@ function sniffTransitionEndEvent () {
 }
 });
 require.register("vue/src/batcher.js", function(exports, require, module){
-var config = require('./config'),
-    utils = require('./utils'),
-    queue, has, waiting
+/*
+* @Author: qiao.jinyan
+* @Date:   2017-08-27 11:14:01
+* @Last Modified by:   qiao.jinyan
+* @Last Modified time: 2017-09-18 15:11:30
+*/
 
-reset()
-
-exports.queue = function (binding, method) {
-    if (!config.async) {
-        binding['_' + method]()
-        return
-    }
-    if (!has[binding.id]) {
-        queue.push({
-            binding: binding,
-            method: method
-        })
-        has[binding.id] = true
-        if (!waiting) {
-            waiting = true
-            utils.nextTick(flush)
-        }
-    }
-}
-
-function flush () {
-    for (var i = 0; i < queue.length; i++) {
-        var task = queue[i],
-            b = task.binding
-        if (b.unbound) continue
-        b['_' + task.method]()
-        has[b.id] = false
-    }
-    reset()
-}
-
-function reset () {
-    queue = []
-    has = utils.hash()
-    waiting = false
-}
 });
 require.register("vue/src/directives/index.js", function(exports, require, module){
 var utils      = require('../utils'),

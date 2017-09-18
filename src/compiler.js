@@ -4,7 +4,9 @@ var utils = require('./utils'),
 	Emitter = require('./emitter'),
     makeHash = utils.hash,
     def = utils.defProtected,
-    Observer = require('./observer')
+    Observer = require('./observer'),
+    hasOwn = Object.prototype.hasOwnProperty,
+    Binding = require('./binding')
 
 // {processOptions: ƒ, extend: ƒ}
 // console.log(utils)
@@ -115,12 +117,18 @@ CompilerProto.setupOberver = function () {
         .on('get', function (key) {
             // tod...
         })
-        .on('set', function (key, value){
+        .on('set', function (key, val){
+            observer.emit('chagne:' + key, val)
+            check(key)
+        })
+        .on('mutate', function (key, val, mutation){
             // tod...
         })
-        .on('mutate', function (key, value, mutation){
-            // tod...
-        })
+    function check (key) {
+        if (!hasOwn.call(bindings, key)) {
+            compiler.createBinding(key)
+        }
+    }
 }
 
 /**
@@ -132,6 +140,50 @@ CompilerProto.execHook = function (id, alt) {
     if (hook) {
         hook.call(this.vm, opts)
     }
+}
+
+/**
+ * Create binding and attach getter/setter for a key to the viewmodel object
+ */
+CompilerProto.createBinding = function (key, isExp, isFn) {
+    var compiler = this,
+        bindings = compiler.bindings,
+        binding = new Binding(compiler, key, isExp, isFn)
+    if (isExp) {
+        // tod...
+    } else {
+        log(' created binding: ' + key)
+        bindings[key] = binding
+        // make sure the key exists in the object so it can be observerd
+        // by the Observer!
+        if (binding.root) {
+            // this is a root level binding.we need to define getter/setter for it.
+            compiler.define(key, binding)
+        }
+    }
+}
+
+/**
+ * Defines the getter/stter for a root-level binding on the VM
+ * and observe the initial value
+ */
+CompilerProto.define = function (key, binding) {
+    log('  defined root binding: ' + key)
+    var compiler = this,
+        data     = compiler.data,
+        vm       = compiler.vm,
+        ob       = data.__observer__
+    
+    if (!(key in data)) {
+        // todo...
+    }
+
+    // if the data object is already observed, but the key
+    // is not observed, we need to add it to the observed keys
+    if (ob && !(key in ob.values)) {
+        // tod...
+    }
+    // TODO
 }
 
 module.exports = Compiler
