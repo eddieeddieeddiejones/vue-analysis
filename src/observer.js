@@ -67,8 +67,8 @@ function observe (obj, rawPath, observer) {
 		get: function () {
 			// tod..
 		},
-		set: function () {
-			// tod..
+		set: function (key, val) {
+			observer.emit('set', path + key, val)
 		},
 		mutate: function () {
 			// tod...
