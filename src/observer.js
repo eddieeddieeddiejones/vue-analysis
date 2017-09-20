@@ -44,6 +44,7 @@ function convert (obj, key) {
 		values = observer.values,
 		val = values[key] = obj[key]
 	observer.emit('set', key, val)
+	// todo
 }
 
 /**
@@ -88,6 +89,13 @@ function observe (obj, rawPath, observer) {
 			watchARRay(obj)
 		}
 	}
+}
+/**
+ * walk along a path and make sure it can be accessed
+ * and enumerated in that object
+ */
+function ensurePath (obj, key) {
+	console.log(1)
 }
 module.exports = {
 

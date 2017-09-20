@@ -2,6 +2,15 @@ var config = require('./config'),
     join = Array.prototype.toString,
     attrs = config.attrs
 
+// 这里为什么这么写？？？？？？？
+// PhantomJS doesn't support rAF, yet it has the global
+// variable exposed. Use setTimeout so tests can work.
+var defer = navigator.userAgent.indexOf('PhantomJS') > -1
+    ? window.setTimeout
+    : (window.webkitRequestAnimationFrame ||
+        window.requestAnimationFrame ||
+        window.setTimeout)
+
 /**
  * create a prototype-less object
  * which is a better hash/map
@@ -76,5 +85,12 @@ var utils = module.exports = {
       */
      typeOf: function (obj) {
         return toString.call(obj).slice(8, -1)
+     },
+
+     /**
+      * used to defer batch updates
+      */
+     nextTick: function (cb) {
+        defer(cb, 0)
      }
 }

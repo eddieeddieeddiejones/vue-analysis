@@ -1,3 +1,4 @@
+console.log('test')
 var utils = require('./utils'),
 	extend = utils.extend,
 	log = utils.log,
@@ -120,6 +121,7 @@ CompilerProto.setupOberver = function () {
         .on('set', function (key, val){
             observer.emit('chagne:' + key, val)
             check(key)
+            bindings[key].update(val)
         })
         .on('mutate', function (key, val, mutation){
             // tod...
@@ -159,8 +161,11 @@ CompilerProto.createBinding = function (key, isExp, isFn) {
         if (binding.root) {
             // this is a root level binding.we need to define getter/setter for it.
             compiler.define(key, binding)
+        } else {
+            // tod...
         }
     }
+    return binding
 }
 
 /**
@@ -183,7 +188,31 @@ CompilerProto.define = function (key, binding) {
     if (ob && !(key in ob.values)) {
         // tod...
     }
-    // TODO
+    
+    var value = binding.value = data[key]
+    if (utils.typeOf(value) === 'Object' && value.$get) {
+        // tod...
+    }
+
+    Object.defineProperty(vm, key, {
+        enumerable: !binding.isComputed,
+        get: binding.isComputed
+            ? function () {
+                return compiler.data[key].$get()
+            }
+            : function () {
+                return compiler.data[key]
+            },
+        set: binding.isComputed
+            ? function (val) {
+                if (compiler.data[key].$set) {
+                    compiler.data[key].$set(val)
+                }
+            }
+            : function (val) {
+                compiler.data[key] = val
+            }
+    })
 }
 
 module.exports = Compiler

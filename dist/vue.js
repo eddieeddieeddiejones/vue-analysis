@@ -275,6 +275,7 @@ function mixin (obj) {
       callbacks[i].apply(this, args)
     }
   }
+  return this
  }
 
 });
@@ -360,6 +361,15 @@ var config = require('./config'),
     join = Array.prototype.toString,
     attrs = config.attrs
 
+// 这里为什么这么写？？？？？？？
+// PhantomJS doesn't support rAF, yet it has the global
+// variable exposed. Use setTimeout so tests can work.
+var defer = navigator.userAgent.indexOf('PhantomJS') > -1
+    ? window.setTimeout
+    : (window.webkitRequestAnimationFrame ||
+        window.requestAnimationFrame ||
+        window.setTimeout)
+
 /**
  * create a prototype-less object
  * which is a better hash/map
@@ -434,10 +444,18 @@ var utils = module.exports = {
       */
      typeOf: function (obj) {
         return toString.call(obj).slice(8, -1)
+     },
+
+     /**
+      * used to defer batch updates
+      */
+     nextTick: function (cb) {
+        defer(cb, 0)
      }
 }
 });
 require.register("vue/src/compiler.js", function(exports, require, module){
+console.log('test')
 var utils = require('./utils'),
 	extend = utils.extend,
 	log = utils.log,
@@ -560,6 +578,7 @@ CompilerProto.setupOberver = function () {
         .on('set', function (key, val){
             observer.emit('chagne:' + key, val)
             check(key)
+            bindings[key].update(val)
         })
         .on('mutate', function (key, val, mutation){
             // tod...
@@ -599,8 +618,11 @@ CompilerProto.createBinding = function (key, isExp, isFn) {
         if (binding.root) {
             // this is a root level binding.we need to define getter/setter for it.
             compiler.define(key, binding)
+        } else {
+            // tod...
         }
     }
+    return binding
 }
 
 /**
@@ -623,7 +645,31 @@ CompilerProto.define = function (key, binding) {
     if (ob && !(key in ob.values)) {
         // tod...
     }
-    // TODO
+    
+    var value = binding.value = data[key]
+    if (utils.typeOf(value) === 'Object' && value.$get) {
+        // tod...
+    }
+
+    Object.defineProperty(vm, key, {
+        enumerable: !binding.isComputed,
+        get: binding.isComputed
+            ? function () {
+                return compiler.data[key].$get()
+            }
+            : function () {
+                return compiler.data[key]
+            },
+        set: binding.isComputed
+            ? function (val) {
+                if (compiler.data[key].$set) {
+                    compiler.data[key].$set(val)
+                }
+            }
+            : function (val) {
+                compiler.data[key] = val
+            }
+    })
 }
 
 module.exports = Compiler
@@ -640,6 +686,7 @@ module.exports = ViewModel
 });
 require.register("vue/src/binding.js", function(exports, require, module){
 var id = 0
+var batcher = require('./batcher')
 
 
 function Binding (compiler, key, isExp, isFn) {
@@ -656,6 +703,12 @@ function Binding (compiler, key, isExp, isFn) {
 	this.unbound = false
 }
 
+var BindingProto = Binding.prototype
+BindingProto.update = function (value) {
+	this.value = value
+	// todo
+	batcher.queue(this, 'update')
+}
 module.exports = Binding
 });
 require.register("vue/src/observer.js", function(exports, require, module){
@@ -705,6 +758,7 @@ function convert (obj, key) {
 		values = observer.values,
 		val = values[key] = obj[key]
 	observer.emit('set', key, val)
+	// todo
 }
 
 /**
@@ -749,6 +803,13 @@ function observe (obj, rawPath, observer) {
 			watchARRay(obj)
 		}
 	}
+}
+/**
+ * walk along a path and make sure it can be accessed
+ * and enumerated in that object
+ */
+function ensurePath (obj, key) {
+	console.log(1)
 }
 module.exports = {
 
@@ -1467,13 +1528,39 @@ function sniffTransitionEndEvent () {
 }
 });
 require.register("vue/src/batcher.js", function(exports, require, module){
-/*
-* @Author: qiao.jinyan
-* @Date:   2017-08-27 11:14:01
-* @Last Modified by:   qiao.jinyan
-* @Last Modified time: 2017-09-18 15:11:30
-*/
 
+var config = require('./config'),
+	utils  = require('./utils'),
+	queue, has, waiting
+
+reset()
+
+exports.queue = function (binding, method) {
+	if (!config.async) {
+		// tod...
+	}
+	if (!has[binding.id]) {
+		queue.push({
+			binding: binding,
+			method: method
+		})
+		has[binding.id] = true
+		if(!waiting) {
+			waiting = true
+			utils.nextTick(flush)
+		}
+	}
+}
+
+function flush () {
+	// tod...
+}
+
+function reset () {
+	queue = []
+	has = utils.hash()
+	waiting = false
+}
 });
 require.register("vue/src/directives/index.js", function(exports, require, module){
 var utils      = require('../utils'),

@@ -1,4 +1,5 @@
 var id = 0
+var batcher = require('./batcher')
 
 
 function Binding (compiler, key, isExp, isFn) {
@@ -15,4 +16,10 @@ function Binding (compiler, key, isExp, isFn) {
 	this.unbound = false
 }
 
+var BindingProto = Binding.prototype
+BindingProto.update = function (value) {
+	this.value = value
+	// todo
+	batcher.queue(this, 'update')
+}
 module.exports = Binding
