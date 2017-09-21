@@ -798,6 +798,7 @@ CompilerProto.compileNode = function (node) {
     }
     
     // recursively compile childNodes
+    // todo 这里debug没有结束
     if (node.childNodes.length) {
         var nodes = slice.call(node.childNodes)
         for (i = 0, j = nodes.length; i < j; i++) {
