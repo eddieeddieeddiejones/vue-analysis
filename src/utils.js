@@ -92,5 +92,14 @@ var utils = module.exports = {
       */
      nextTick: function (cb) {
         defer(cb, 0)
+     },
+     /**
+      * get an attribute and remove it
+      */
+     attr: function (el, type, noRemove) {
+        var attr = attrs[type],
+            val = el.getAttribute(attr)
+        if (!noRemove && val != null) el.removeAttribute(attr)
+        return val
      }
 }

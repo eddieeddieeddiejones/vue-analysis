@@ -451,6 +451,15 @@ var utils = module.exports = {
       */
      nextTick: function (cb) {
         defer(cb, 0)
+     },
+     /**
+      * get an attribute and remove it
+      */
+     attr: function (el, type, noRemove) {
+        var attr = attrs[type],
+            val = el.getAttribute(attr)
+        if (!noRemove && val != null) el.removeAttribute(attr)
+        return val
      }
 }
 });
@@ -464,7 +473,10 @@ var utils = require('./utils'),
     def = utils.defProtected,
     Observer = require('./observer'),
     hasOwn = Object.prototype.hasOwnProperty,
-    Binding = require('./binding')
+    Binding = require('./binding'),
+    config = require('./config'),
+    TextParser = require('./text-parser'),
+    slice = Array.prototype.slice
 
 // {processOptions: ƒ, extend: ƒ}
 // console.log(utils)
@@ -696,16 +708,110 @@ CompilerProto.define = function (key, binding) {
                 compiler.data[key] = val
             }
     })
-
-    // now parse the DOM, during which we will create necessary bindings
-    // and bind the parsed directives
-    compiler.compile(el, true)
 }
 /**
  * Compile a DOM node(recursive)
  */
 CompilerProto.compile = function (node, root) {
+    var compiler = this,
+        nodeType = node.nodeType,
+        tagName  = node.tagName
 
+    if (nodeType === 1 && tagName !== 'SCRIPT') { // a normal node
+
+        // skip anything with v-pre
+        if (utils.attr(node, 'pre') !== null) return
+
+        // special attributes to check
+        var repeatExp,
+            componentExp,
+            partialId,
+            directive
+
+        // It is important that we access these attributes
+        // procedurally because the order matters.
+        //
+        // `utils.attr` removes the attribute once it gets the
+        // value, so we should not access them all at once.
+
+        // v-repeat has the highest priority
+        // and we need to preserve all other attributes for it.
+        /* jshint boss: true */
+        if (repeatExp = utils.attr(node, 'repeat')) {
+
+            // tod...
+
+        // v-component has 2nd highest priority
+        } else if (!root && (componentExp = utils.attr(node, 'component'))) {
+
+            // tod...
+
+        } else {
+            
+            // check transition property
+            node.vue_trans = utils.attr(node, 'transition')
+            
+            // replace innerHTML with partial
+            partialId = utils.attr(node, 'partial')
+            if (partialId) {
+                // tod...
+            }
+
+            // finally, only normal directives left!
+            compiler.compileNode(node)
+        }
+    } else if (nodeType === 3) { // text node
+
+        compiler.compileTextNode(node)
+
+    }
+}
+
+/**
+ *  Compile a normal node
+ */
+CompilerProto.compileNode = function (node) {
+    var i, j,
+        attrs = node.attributes,
+        prefix = config.prefix + '-'
+    // parse if has attributes
+    if (attrs && attrs.length) {
+        var attr, isDirective, exps, exp, directive
+        // loop through all attributes
+        i = attrs.length
+        while (i--) {
+            attr = attrs[i]
+            isDirective = false
+
+            if (attr.name.indexOf(prefix) === 0) {
+                // tod...
+            } else {
+                // non directive attribute, check interpolation tags
+                exp = TextParser.parseAttr(attr.value)
+                if (exp) {
+                    // tod...
+                }
+            }
+
+            if (isDirective) node.removeAttribute(attr.name)
+        }
+    }
+    
+    // recursively compile childNodes
+    if (node.childNodes.length) {
+        var nodes = slice.call(node.childNodes)
+        for (i = 0, j = nodes.length; i < j; i++) {
+            this.compile(nodes[i])
+        }
+    }
+}
+/**
+ *  Compile a text node
+ */
+CompilerProto.compileTextNode = function (node) {
+    var tokens = TextParser.parse(node.nodeValue)
+    if (!tokens) return
+    // tod...
 }
 
 module.exports = Compiler
