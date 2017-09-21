@@ -71,6 +71,27 @@ function Compiler (vm, options) {
 
     // observe the data
     Observer.observe(data, '', compiler.observer)
+
+    // for repeated items, create an index binding
+    // which should be inenumerable but configurable
+    if (compiler.repeat) {
+        // tod...
+    }
+
+    // allow the $data object to be swapped
+    Object.defineProperty(vm, '$data', {
+        enumerable: false,
+        get: function () {
+            // tod...
+        },
+        set: function (newData) {
+            // tod...
+        }
+    })
+
+    // now parse the DOM, during which we will create necessary bindings
+    // and bind the parsed directives
+    compiler.compile(el, true)
 }
 var CompilerProto = Compiler.prototype
 
@@ -162,7 +183,12 @@ CompilerProto.createBinding = function (key, isExp, isFn) {
             // this is a root level binding.we need to define getter/setter for it.
             compiler.define(key, binding)
         } else {
-            // tod...
+            // ensure path in data so it can be observerd
+            Observer.ensurePath(compiler.data, key)
+            var parentKey = key.slice(0, key.lastIndexOf('.'))
+            if (!hasOwn.call(bindings, parentKey)) {
+                // tod...
+            }
         }
     }
     return binding
@@ -213,6 +239,16 @@ CompilerProto.define = function (key, binding) {
                 compiler.data[key] = val
             }
     })
+
+    // now parse the DOM, during which we will create necessary bindings
+    // and bind the parsed directives
+    compiler.compile(el, true)
+}
+/**
+ * Compile a DOM node(recursive)
+ */
+CompilerProto.compile = function (node, root) {
+
 }
 
 module.exports = Compiler

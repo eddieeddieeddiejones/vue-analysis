@@ -528,6 +528,27 @@ function Compiler (vm, options) {
 
     // observe the data
     Observer.observe(data, '', compiler.observer)
+
+    // for repeated items, create an index binding
+    // which should be inenumerable but configurable
+    if (compiler.repeat) {
+        // tod...
+    }
+
+    // allow the $data object to be swapped
+    Object.defineProperty(vm, '$data', {
+        enumerable: false,
+        get: function () {
+            // tod...
+        },
+        set: function (newData) {
+            // tod...
+        }
+    })
+
+    // now parse the DOM, during which we will create necessary bindings
+    // and bind the parsed directives
+    compiler.compile(el, true)
 }
 var CompilerProto = Compiler.prototype
 
@@ -619,7 +640,12 @@ CompilerProto.createBinding = function (key, isExp, isFn) {
             // this is a root level binding.we need to define getter/setter for it.
             compiler.define(key, binding)
         } else {
-            // tod...
+            // ensure path in data so it can be observerd
+            Observer.ensurePath(compiler.data, key)
+            var parentKey = key.slice(0, key.lastIndexOf('.'))
+            if (!hasOwn.call(bindings, parentKey)) {
+                // tod...
+            }
         }
     }
     return binding
@@ -670,6 +696,16 @@ CompilerProto.define = function (key, binding) {
                 compiler.data[key] = val
             }
     })
+
+    // now parse the DOM, during which we will create necessary bindings
+    // and bind the parsed directives
+    compiler.compile(el, true)
+}
+/**
+ * Compile a DOM node(recursive)
+ */
+CompilerProto.compile = function (node, root) {
+
 }
 
 module.exports = Compiler
@@ -706,7 +742,6 @@ function Binding (compiler, key, isExp, isFn) {
 var BindingProto = Binding.prototype
 BindingProto.update = function (value) {
 	this.value = value
-	// todo
 	batcher.queue(this, 'update')
 }
 module.exports = Binding
@@ -758,7 +793,19 @@ function convert (obj, key) {
 		values = observer.values,
 		val = values[key] = obj[key]
 	observer.emit('set', key, val)
-	// todo
+	
+	if (Array.isArray(val)) {
+		observer.emit('set', key + '.length', val.length)
+	}
+	Object.defineProperty(obj, key, {
+	    get: function () {
+	    	// tod...
+	    },
+	    set: function (newVal) {
+	    	// tod...
+	    }
+	})
+	observe(val, key, observer)
 }
 
 /**
@@ -800,7 +847,7 @@ function observe (obj, rawPath, observer) {
 		if (type === OBJECT) {
 			watchObject(obj)
 		} else if (type === ARRAY) {
-			watchARRay(obj)
+			watchArray(obj)
 		}
 	}
 }
@@ -809,11 +856,34 @@ function observe (obj, rawPath, observer) {
  * and enumerated in that object
  */
 function ensurePath (obj, key) {
-	console.log(1)
+	var path = key.split('.'), sec
+	for (var i = 0, d = path.length - 1; i < d; i++) {
+	    sec = path[i]
+	    if (!obj[sec]) {
+	        // tod...
+	    }
+	    obj = obj[sec]
+	}
+	if (typeOf(obj) === OBJECT) {
+	    // tod...
+	}
 }
-module.exports = {
 
-    observe: observe
+/**
+ * Watch an Array,overload mutation methods
+ * and add augmentations by intercepting the prototype chain
+ */
+
+function watchArray (arr, path) {
+	var observer = arr.__observer__
+	if (!observer) {
+		// tod...
+	}
+}
+
+module.exports = {
+    observe: observe,
+    ensurePath: ensurePath
 }
 });
 require.register("vue/src/directive.js", function(exports, require, module){

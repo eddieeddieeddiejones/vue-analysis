@@ -44,7 +44,19 @@ function convert (obj, key) {
 		values = observer.values,
 		val = values[key] = obj[key]
 	observer.emit('set', key, val)
-	// todo
+	
+	if (Array.isArray(val)) {
+		observer.emit('set', key + '.length', val.length)
+	}
+	Object.defineProperty(obj, key, {
+	    get: function () {
+	    	// tod...
+	    },
+	    set: function (newVal) {
+	    	// tod...
+	    }
+	})
+	observe(val, key, observer)
 }
 
 /**
@@ -86,7 +98,7 @@ function observe (obj, rawPath, observer) {
 		if (type === OBJECT) {
 			watchObject(obj)
 		} else if (type === ARRAY) {
-			watchARRay(obj)
+			watchArray(obj)
 		}
 	}
 }
@@ -95,9 +107,32 @@ function observe (obj, rawPath, observer) {
  * and enumerated in that object
  */
 function ensurePath (obj, key) {
-	console.log(1)
+	var path = key.split('.'), sec
+	for (var i = 0, d = path.length - 1; i < d; i++) {
+	    sec = path[i]
+	    if (!obj[sec]) {
+	        // tod...
+	    }
+	    obj = obj[sec]
+	}
+	if (typeOf(obj) === OBJECT) {
+	    // tod...
+	}
 }
-module.exports = {
 
-    observe: observe
+/**
+ * Watch an Array,overload mutation methods
+ * and add augmentations by intercepting the prototype chain
+ */
+
+function watchArray (arr, path) {
+	var observer = arr.__observer__
+	if (!observer) {
+		// tod...
+	}
+}
+
+module.exports = {
+    observe: observe,
+    ensurePath: ensurePath
 }

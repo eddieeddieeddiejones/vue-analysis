@@ -19,7 +19,6 @@ function Binding (compiler, key, isExp, isFn) {
 var BindingProto = Binding.prototype
 BindingProto.update = function (value) {
 	this.value = value
-	// todo
 	batcher.queue(this, 'update')
 }
 module.exports = Binding
