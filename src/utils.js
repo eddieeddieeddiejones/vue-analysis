@@ -101,5 +101,64 @@ var utils = module.exports = {
             val = el.getAttribute(attr)
         if (!noRemove && val != null) el.removeAttribute(attr)
         return val
+     },
+
+     /**
+      * Make sure only strings and numbers are output to html
+      * output empty string is value is not string or number
+      */
+     toText: function (value) {
+        /* jshint eqeqeq: false */
+        return (typeof value === 'string' ||
+            typeof value ==='boolean' || 
+            (typeof value === 'number' && value == value)) // deal with NaN
+            ? value
+            : ''
+     },
+     /**
+      * filter an array with duplicates into uniques
+      */
+     unique: function (arr) {
+        var hash = utils.hash(),
+            i = arr.length,
+            res = []
+        while (i--) {
+            key = arr[i]
+            if(hash[key]) continue
+            hash[key] = 1
+            res.push(key)
+        }
+        return res
+     },
+     /**
+      * Convert a string template to a dom fragment
+      */
+     toFragment: function (template) {
+        if (typeof template !== 'string') {
+            return template
+        }
+        if (template.charAt(0) === '#') {
+            var templateNode = document.getElementById(template.slice(1))
+            if (!templateNode) return
+            template = templateNode.innerHTML
+        }
+        var node = document.createElement('div'),
+            frag = document.createDocumentFragment(),
+            child
+        node.innerHTML = template.trim()
+        /* jshint boss: true */
+        while (child = node.firstChild) {
+            frag.appendChild(child)
+        }
+        return frag
+     },
+     /**
+      * Most simple bind
+      * enough for the usecase and fast than native bind()
+      */
+     bind: function (fn, ctx) {
+        return function (arg) {
+            return fn.call(ctx, arg)
+        }
      }
 }

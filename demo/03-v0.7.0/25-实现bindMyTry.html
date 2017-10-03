@@ -6,7 +6,7 @@
 var utils = {
     bind: function (fn, ctx) {
         return function (arg) {
-            console.log('arg',arg)
+            console.log(arg) // undefined
             return fn.call(ctx, arg)
         }
     }
@@ -17,12 +17,11 @@ function test () {
 }
 var bound = utils.bind(test, 2)
 /*
-ƒ (arg) {
-    return fn.call(ctx, arg)
-}
+function (arg) {
+    ...
  */
 console.log(bound)
-console.log(bound()) // 3
+console.log(bound())
 </script>
 </body>
 </html>

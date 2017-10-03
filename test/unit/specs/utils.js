@@ -2,7 +2,7 @@ describe('UNIT: Utils', function () {
 
     var utils = require('vue/src/utils'),
         config = require('vue/src/config')
-
+    // console.log(config)
     try {
         require('non-existent')
     } catch (e) {
@@ -148,7 +148,6 @@ describe('UNIT: Utils', function () {
                 assert.strictEqual(res[l], 5 - l)
             }
         })
-
     })
 
 

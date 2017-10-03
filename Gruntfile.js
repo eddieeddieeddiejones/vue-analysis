@@ -61,6 +61,11 @@ module.exports = function( grunt ) {
         'casper'
     ])
 
+    // 我添加的
+    // grunt.registerTask( 'unit', [
+    //     'unit'
+    // ])
+
     grunt.registerTask( 'default', [
         'jshint',
         'build',
