@@ -1,11 +1,11 @@
 # vue-analysis
-vue源码分析
-vue源码，v0.7.3之前的源码看过了。后面的没看。v0.7.3的源码没看完
-研究源码，我最重要的收获是更善于debug代码了
+- vue源码分析
+- [vue源码](https://github.com/vuejs/vue)，v0.7.3之前的源码看过了。后面的没看。v0.7.3的源码没看完
+  ![研究了这几个commmit](images/commit.png "研究了这几个提交的代码")
+- 研究源码，我最重要的收获是更善于debug代码了
+- 项目用git管理了，所以可以根据commit研究代码
 
 ## 技巧、心得
-- lv https://unpkg.com/vue@2.4.1
-可以看整体结构
 - 如何从历史提交一个一个看源码？
 这是phodal的经验
 http://mp.weixin.qq.com/s?__biz=MjM5Mjg4NDMwMA==&mid=2652973508&idx=1&sn=1281837abb0530893f8b42e05ea35a7e#rd
@@ -14,10 +14,9 @@ git reset --hard commit-id
 - 拷贝一份代码，自己写一遍，这么做可以避免分支切来切去
 - 做记录把需要重新写一遍的commitid记下来，下一次提交放心大胆的删除。
 - git reset --hard id 能清空暂存区
-- qit clean --nfd 丢弃未提交的内容
-- [debug js代码](http://www.zsoltnagy.eu/javascript-debugging-tips-and-tricks/)
+- git clean --nfd 丢弃未提交的内容
 
-## rename
+# rename
 
 commitName：rename，最开始的idea demo，
 vue源码commit_id： c56a910
@@ -57,7 +56,7 @@ console.log(obj['a']) // get
 
 正则匹配=>添加自定义属性作标记=>定义一个对象作为仓库，遍历添加get、set属性=>遍历设置值，触发set
 
-## naive imploementation
+# naive imploementation
 
 commitName：naive imploementation
 五脏俱全的vue库demo,实现了sd-text、filter等
@@ -156,7 +155,7 @@ arc.getArchive(); // [{ val: 11 }, { val: 13 }]
 ### 思路
 根据directive.js文件中的key,结合node，生成一个个具体的diretive对象=>根据key给dom绑定directive，也就是给Seed对象中的key添加set、get方法。=>遍历scope中的键值对，触发set、get方法。
 
-## V 0.7.3
+# V 0.7.3
 - demo文件夹下有从源码中拆出来的小demo，很多
 - 0.7.3版本的代码，我本来打算写一遍的，写了85%，最后调试去找哪句代码没写，不好找，放弃了。`00-记录.md`文件进度记录了我的完成经历
 - 如果下次接着做，可以试着根据单元测试文件修补代码。
